@@ -377,6 +377,7 @@ def delete(food_id):
         print("Error:", traceback.format_exc())
         return jsonify({'success': False, 'message': 'Error deleting record', 'error': str(e)}), 500
 
+
 @app.route('/updateuser', methods=["POST"])
 def update_user():
     # Fetching JSON data from the request body
