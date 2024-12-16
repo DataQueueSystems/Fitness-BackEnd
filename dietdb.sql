@@ -32,6 +32,7 @@ CREATE TABLE `logindetails` (
   `Name` text NOT NULL,
   `Email` text NOT NULL,
   `Password` text NOT NULL
+  `ProfileImage` text
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --

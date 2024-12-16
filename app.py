@@ -107,27 +107,37 @@ def add_user():
         Name = request.form.get('Name')
         Email = request.form.get('Email')
         Password = request.form.get('Password')
-        
+        ProfileImage = ""
+
         # Validate inputs (optional but recommended)
         if not Name or not Email or not Password:
             return jsonify({'success': False, 'message': 'All fields are required!'}), 400
 
+        # Check if the email already exists in the database
+        cursor.execute("SELECT COUNT(*) FROM `logindetails` WHERE `Email` = %s", (Email,))
+        email_exists = cursor.fetchone()[0]
+
+        if email_exists > 0:
+            return jsonify({'success': False, 'message': 'Email already exists. Please use a different email.'}), 400
+
         # Insert into the database using parameterized queries to prevent SQL injection
         cursor.execute("""
-            INSERT INTO `logindetails` (`Name`, `Email`, `Password`) 
-            VALUES (%s, %s, %s)
-        """, (Name, Email, Password))
+            INSERT INTO `logindetails` (`Name`, `Email`, `Password`, `ProfileImage`) 
+            VALUES (%s, %s, %s, %s)
+        """, (Name, Email, Password, ProfileImage))
         conn.commit()
 
         # Optionally create a user-specific table or perform other actions
         create_user_table(Email)
-        
+
         # Return a success response
         return jsonify({'success': True, 'message': 'Registered successfully!'}), 201
 
     except Exception as e:
         print(f"Error: {e}")
         return jsonify({'success': False, 'message': 'Registration failed. Please try again later.'}), 500
+
+
 
 @app.route('/UserLogin', methods=['POST'])
 def LoginVald():
@@ -376,9 +386,9 @@ def update_user():
     Email = data.get('Email')
     localemail = data.get('PrevEmail')
     Password = data.get('Password')
-
+    ProfileImage = data.get('ProfileImage')
     # Checking if all fields are provided
-    if not all([Name, Email, Password]):
+    if not all([Name, Email, Password,ProfileImage]):
         return jsonify({"status": "error", "message": "All fields are required!"}), 400
 
     # Updating user details in the database
@@ -386,10 +396,10 @@ def update_user():
         cursor.execute(
             """
             UPDATE logindetails
-            SET Name = %s, Password = %s, Email = %s
+            SET Name = %s, Password = %s, ProfileImage = %s, Email = %s
             WHERE Email = %s
             """,
-            (Name, Password, Email, localemail)
+            (Name, Password,ProfileImage, Email, localemail)
         )
         conn.commit()
         return jsonify({"status": "success", "message": "User details updated successfully!"}), 200
